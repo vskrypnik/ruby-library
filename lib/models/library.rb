@@ -14,22 +14,26 @@ class Library
   end
 
   def who_often_takes_the_books
-    @orders.group_by(&:reader).transform_values(&:count).to_a.sort_by(&:last).last&.first
+    sort_entity_by_orders_count(:reader).first
   end
 
   def what_is_the_most_popular_book
-    most_popular_books.last
+    most_popular_books.first
   end
 
   def how_many_people_ordered_one_of_the_three_most_popular_books
-    most_popular_books.last(3).reduce(0) do |count, book|
-      count + @orders.count { |order| order.book == book }
-    end
+    most_popular_books.first(3).reduce([]) do |orders, book|
+      orders + @orders.select { |order| order.book == book }
+    end.map(&:reader).uniq.count
   end
 
   private
 
   def most_popular_books
-    @orders.group_by(&:book).transform_values(&:count).to_a.sort_by(&:last).map(&:first)
+    sort_entity_by_orders_count(:book)
+  end
+
+  def sort_entity_by_orders_count(entity)
+    @orders.group_by(&entity).transform_values(&:count).to_a.sort_by(&:last).map(&:first).reverse
   end
 end
