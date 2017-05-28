@@ -22,9 +22,9 @@ class Library
   end
 
   def how_many_people_ordered_one_of_the_three_most_popular_books
-    most_popular_books.first(3).reduce([]) do |orders, book|
-      orders + @orders.select { |order| order.book == book }
-    end.map(&:reader).uniq.count
+    most_popular_books.first(3).map do |book|
+      @orders.select { |order| order.book == book }
+    end.flatten.map(&:reader).uniq.count
   end
 
   private
